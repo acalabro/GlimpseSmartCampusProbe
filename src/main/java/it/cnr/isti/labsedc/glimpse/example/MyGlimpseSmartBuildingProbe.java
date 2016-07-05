@@ -50,7 +50,7 @@ public class MyGlimpseSmartBuildingProbe extends GlimpseAbstractProbe {
 	public static float parameterValue;
 	public static String roomID;
 	public static String sensorName;
-	public static Random rand;
+	public static Random rand = new Random();
 	
 	public MyGlimpseSmartBuildingProbe(Properties settings) {
 		super(settings);
@@ -76,7 +76,7 @@ public class MyGlimpseSmartBuildingProbe extends GlimpseAbstractProbe {
 				
 				DebugMessages.println(
 						MyGlimpseSmartBuildingProbe.class.getName(),
-						"Starting loop (1000 events, one each " + sendingInterval + " seconds");
+						"Starting loop (1000 events, one each " + sendingInterval + " milliseconds");
 				
 				
 				
@@ -84,7 +84,7 @@ public class MyGlimpseSmartBuildingProbe extends GlimpseAbstractProbe {
 						parameterName, parameterValue, sendingInterval);
 			}	else {
 				DebugMessages.println(MyGlimpseSmartBuildingProbe.class.getName(),
-								"USAGE: java -jar MyGlimpseSmartBuildingProbe.jar [sendingIntervalInSeconds] [roomID] [sensorName]");
+								"USAGE: java -jar MyGlimpseSmartBuildingProbe.jar [sendingIntervalInMilliseconds] [roomID] [sensorName]");
 				DebugMessages.line();
 			}
 		} catch (IndexOutOfBoundsException e) {
