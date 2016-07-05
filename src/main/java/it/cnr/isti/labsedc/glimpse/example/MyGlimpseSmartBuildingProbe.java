@@ -24,6 +24,7 @@ package it.cnr.isti.labsedc.glimpse.example;
 
 import java.net.UnknownHostException;
 import java.util.Properties;
+import java.util.Random;
 
 import javax.jms.JMSException;
 import javax.naming.NamingException;
@@ -49,6 +50,7 @@ public class MyGlimpseSmartBuildingProbe extends GlimpseAbstractProbe {
 	public static float parameterValue;
 	public static String roomID;
 	public static String sensorName;
+	public static Random rand;
 	
 	public MyGlimpseSmartBuildingProbe(Properties settings) {
 		super(settings);
@@ -57,33 +59,36 @@ public class MyGlimpseSmartBuildingProbe extends GlimpseAbstractProbe {
 	public static void main(String[] args) throws UnknownHostException {
 
 		DebugMessages.line();
-		DebugMessages.println(MyGlimpseSmartBuildingProbe.class.getName(),
-				"\nUSAGE: java -jar MyGlimpseSmartBuildingProbe.jar [sendingInterval] [roomID] [sensorName]");
-		DebugMessages.line();
 		try {
 			if (args.length > 0 && Integer.parseInt(args[0])>0) {
 				sendingInterval = Integer.parseInt(args[0]);
 				roomID = args[1];
 				sensorName = args[2];
-			}	
+				
+				MyGlimpseSmartBuildingProbe aGenericProbe = new
+						MyGlimpseSmartBuildingProbe(Manager.createProbeSettingsPropertiesObject(
+										"org.apache.activemq.jndi.ActiveMQInitialContextFactory",
+										"tcp://atlantis.isti.cnr.it:61616",
+										"system", "manager",
+										"TopicCF", "jms.probeTopic",
+										false,
+										"probeName", "probeTopic"));
+				
+				DebugMessages.println(
+						MyGlimpseSmartBuildingProbe.class.getName(),
+						"Starting loop (1000 events, one each " + sendingInterval + " seconds");
+				
+				
+				
+				aGenericProbe.generateAndSendExample_GlimpseBaseEvents_FloatPayload(
+						parameterName, parameterValue, sendingInterval);
+			}	else {
+				DebugMessages.println(MyGlimpseSmartBuildingProbe.class.getName(),
+								"USAGE: java -jar MyGlimpseSmartBuildingProbe.jar [sendingIntervalInSeconds] [roomID] [sensorName]");
+				DebugMessages.line();
+			}
 		} catch (IndexOutOfBoundsException e) {
-		}
-		
-		MyGlimpseSmartBuildingProbe aGenericProbe = new
-				MyGlimpseSmartBuildingProbe(Manager.createProbeSettingsPropertiesObject(
-								"org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-								"tcp://atlantis.isti.cnr.it:61616",
-								"system", "manager",
-								"TopicCF", "jms.probeTopic",
-								false,
-								"probeName", "probeTopic"));
-		
-		DebugMessages.println(
-				MyGlimpseSmartBuildingProbe.class.getName(),
-				"Starting loop");
-		
-		aGenericProbe.generateAndSendExample_GlimpseBaseEvents_FloatPayload(
-				parameterName, parameterValue, sendingInterval);
+		}		
 	}
 	
 	@Override
@@ -98,15 +103,16 @@ public class MyGlimpseSmartBuildingProbe extends GlimpseAbstractProbe {
 		GlimpseBaseEventSB<Float> message;
 		DebugMessages.ok();
 		DebugMessages.line();
+		
 		try {
 			
 			for (int i = 0; i<1000;i++) {
 								
 				message = new GlimpseBaseEventSB<Float>(
-						parameterValue,
+						rand.nextFloat(),
 						MyGlimpseSmartBuildingProbe.sensorName,
 						System.currentTimeMillis(),
-						parameterName,
+						"parameterName"+rand.nextInt(),
 						false,
 						MyGlimpseSmartBuildingProbe.roomID
 						);
