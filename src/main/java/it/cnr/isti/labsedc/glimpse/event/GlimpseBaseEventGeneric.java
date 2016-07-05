@@ -11,6 +11,7 @@ public class GlimpseBaseEventGeneric<T> extends GlimpseBaseEventAbstract<T> {
 		
 		super(data, timeStamp, eventName, isException);
 		this.extraDataField = extraDataField;
+		this.probeID = probeID;
 		
 	}
 	public String getProbeID() {
