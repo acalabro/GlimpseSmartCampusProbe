@@ -3,7 +3,7 @@ GlimpseSmartBuildingProbe
 
 Information   | Value
 ------------- | --------
-Package       | it.cnr.isti.labsedc.glimpse.probe
+Package       | it.cnr.isti.labsedc.glimpse
 Roadmap       | TBD
 Language      | Java
 
