@@ -110,12 +110,12 @@ public class MyGlimpseSmartBuildingProbe extends GlimpseAbstractProbe {
 			for (int i = 0; i<1000;i++) {
 								
 				message = new GlimpseBaseEventSB<Float>(
-						75f,
+						64f,
 						MyGlimpseSmartBuildingProbe.sensorName,
 						System.currentTimeMillis(),
-						"Temperature",
+						"Humidity",
 						false,
-						MyGlimpseSmartBuildingProbe.roomID, SensorType.TEMPERATURE
+						MyGlimpseSmartBuildingProbe.roomID, SensorType.HUMIDITY
 						);
 				
 				this.sendEventMessage(message, false);
