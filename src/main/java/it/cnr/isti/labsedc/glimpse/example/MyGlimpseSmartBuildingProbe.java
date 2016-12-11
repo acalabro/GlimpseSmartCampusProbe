@@ -34,6 +34,7 @@ import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEventSB;
 import it.cnr.isti.labsedc.glimpse.probe.GlimpseAbstractProbe;
 import it.cnr.isti.labsedc.glimpse.utils.DebugMessages;
 import it.cnr.isti.labsedc.glimpse.utils.Manager;
+import it.cnr.isti.labsedc.glimpse.utils.SensorType;
 
 public class MyGlimpseSmartBuildingProbe extends GlimpseAbstractProbe {
 
@@ -68,7 +69,7 @@ public class MyGlimpseSmartBuildingProbe extends GlimpseAbstractProbe {
 				MyGlimpseSmartBuildingProbe aGenericProbe = new
 						MyGlimpseSmartBuildingProbe(Manager.createProbeSettingsPropertiesObject(
 										"org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-										"tcp://atlantis.isti.cnr.it:61616",
+										"tcp://0.0.0.0:61616",
 										"system", "manager",
 										"TopicCF", "jms.probeTopic",
 										false,
@@ -109,12 +110,12 @@ public class MyGlimpseSmartBuildingProbe extends GlimpseAbstractProbe {
 			for (int i = 0; i<1000;i++) {
 								
 				message = new GlimpseBaseEventSB<Float>(
-						rand.nextFloat(),
+						75f,
 						MyGlimpseSmartBuildingProbe.sensorName,
 						System.currentTimeMillis(),
-						"parameterName"+rand.nextInt(),
+						"Temperature",
 						false,
-						MyGlimpseSmartBuildingProbe.roomID
+						MyGlimpseSmartBuildingProbe.roomID, SensorType.TEMPERATURE
 						);
 				
 				this.sendEventMessage(message, false);
@@ -126,6 +127,7 @@ public class MyGlimpseSmartBuildingProbe extends GlimpseAbstractProbe {
 								+ "parameterValue: " + message.getEventData() + "\n"
 								+ "timestamp: " + message.getTimeStamp() + "\n"
 								+ "roomID: " + message.getExtraDataField() + "\n"
+								+ "sensorType: " + message.getSensorType().toString() + "\n"
 								+"}");
 				DebugMessages.line();
 				Thread.sleep(sendingInterval);
