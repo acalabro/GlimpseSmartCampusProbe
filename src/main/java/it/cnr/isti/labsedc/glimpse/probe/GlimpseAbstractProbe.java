@@ -58,24 +58,41 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 	protected static TopicConnection connection;
 	protected static Topic connectionTopic;
 	protected static int MESSAGEID = 0;
+	protected boolean retry = true;
+	protected int seconds = 5;
 	
 	/**
 	 * This constructor allow to create a GlimpseAbstractProbe object<br />
 	 * providing the {@link Properties} settings object
 	 * @param settings can be generated automatically
 	 * using {@link Manager#createConsumerSettingsPropertiesObject(String, String, String, String, String, String, boolean, String)}.
+	 * @throws InterruptedException 
 	 * 
 	 */	
 	public GlimpseAbstractProbe(Properties settings) {
 		
-		try {	
-			initContext = this.initConnection(settings, true);
-			this.createConnection(initContext,settings.getProperty("probeChannel"), settings, true);
-		} catch (NamingException e) {
-			e.printStackTrace();
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}		
+		while (retry) {
+			try {
+				initContext = this.initConnection(settings, true);
+				this.createConnection(initContext,settings.getProperty("probeChannel"), settings, true);	
+				retry = false;
+			} catch (NamingException | JMSException e) {
+				DebugMessages.fail();
+				DebugMessages.line();
+				DebugMessages.println(this.getClass().getSimpleName(), "CONNECTION FAILED - Retrying in " + seconds + " seconds");
+				if (seconds <300) {
+					retry = true;
+					DebugMessages.line();
+				try {
+					Thread.sleep(seconds *1000);
+				} catch (InterruptedException e1) {
+				}
+				seconds +=5;
+				DebugMessages.println(this.getClass().getSimpleName(), "Retrying .......... ");
+				}
+				
+			}
+		}
 	}
 	
 	/**

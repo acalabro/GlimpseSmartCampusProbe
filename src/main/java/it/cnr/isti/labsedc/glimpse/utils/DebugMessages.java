@@ -48,6 +48,17 @@ public class DebugMessages {
 		}
 		System.out.println(add + "[ OK ]");
 	}
+	
+	public static void fail()
+	{
+		int tab = 10 - (lastMessageLength / 8);
+		String add="";
+		for(int i = 0; i< tab;i++) {
+			add +="\t"; 
+		}
+		System.out.println(add + "[FAIL]");
+	}
+	
 	/**
 	 * 
 	 * Print a line <br />

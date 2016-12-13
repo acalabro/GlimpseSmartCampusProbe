@@ -113,9 +113,9 @@ public class MyGlimpseSmartBuildingProbe extends GlimpseAbstractProbe {
 						64f,
 						MyGlimpseSmartBuildingProbe.sensorName,
 						System.currentTimeMillis(),
-						"Light consumption",
+						"Humidity",
 						false,
-						MyGlimpseSmartBuildingProbe.roomID, SensorType.LIGHTPOWER
+						MyGlimpseSmartBuildingProbe.roomID, SensorType.HUMIDITY
 						);
 				
 				this.sendEventMessage(message, false);
