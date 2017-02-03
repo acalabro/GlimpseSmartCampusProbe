@@ -66,6 +66,7 @@ public class MyGlimpseSmartCampusProbe extends GlimpseAbstractProbe {
 				Manager.createProbeSettingsPropertiesObject("org.apache.activemq.jndi.ActiveMQInitialContextFactory",
 								"tcp://localhost:61616","system", "manager","TopicCF", "jms.probeTopic",false,"probeName", "probeTopic"));
 		
+		//sending events
 		try {
 				aGenericProbe.generateAndSendExample_GlimpseBaseEvents_SmartBuildingPayload();
 				aGenericProbe.generateAndSendExample_GlimpseBaseEvents_FaceRecognitionPayload();
