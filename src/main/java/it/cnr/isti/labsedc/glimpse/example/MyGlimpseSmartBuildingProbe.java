@@ -69,7 +69,7 @@ public class MyGlimpseSmartBuildingProbe extends GlimpseAbstractProbe {
 				MyGlimpseSmartBuildingProbe aGenericProbe = new
 						MyGlimpseSmartBuildingProbe(Manager.createProbeSettingsPropertiesObject(
 										"org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-										"tcp://0.0.0.0:61616",
+										"tcp://localhost:61616",
 										"system", "manager",
 										"TopicCF", "jms.probeTopic",
 										false,
