@@ -114,7 +114,7 @@ public class MyGlimpseSmartCampusProbe extends GlimpseAbstractProbe {
 		
 		message = new GlimpseBaseEventFaceRecognition<Boolean>(
 				false, "CameraName", System.currentTimeMillis(),
-				"StringParameterAvailable", false, "C-70");
+				"StringParameterAvailable", false, "C-70", "thePersonID", "IDScreenshot");
 				
 			try {
 				this.sendEventMessage(message, false);
@@ -122,10 +122,12 @@ public class MyGlimpseSmartCampusProbe extends GlimpseAbstractProbe {
 					MyGlimpseSmartCampusProbe.class.getSimpleName(),
 					"GlimpseBaseEventFaceRecognition message sent: {\n"
 							+ "cameraName: " + message.getProbeID() + "\n"
-							+ "parameterName: " + message.getEventName() + "\n"
+							+ "macAddress: " + message.getEventName() + "\n"
 							+ "recognitionValue: " + message.getEventData() + "\n"
 							+ "timestamp: " + message.getTimeStamp() + "\n"
 							+ "roomID: " + message.getExtraDataField() + "\n"
+							+ "personID: " + message.getPersonID() + "\n"
+							+ "idScreenshot: " + message.getIDScreenshot()+ "\n"
 							+ "}");
 				DebugMessages.line();
 			} catch (JMSException | NamingException e) {
