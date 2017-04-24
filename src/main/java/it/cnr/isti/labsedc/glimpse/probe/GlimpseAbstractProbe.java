@@ -21,6 +21,8 @@
 
 package it.cnr.isti.labsedc.glimpse.probe;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
 
 import javax.jms.JMSException;
@@ -28,11 +30,12 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicConnection;
-import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
 
 import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEvent;
 import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEventAbstract;
@@ -112,7 +115,11 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 		if (debug)
 			DebugMessages.print(this.getClass().getSimpleName(),
 					"Creating ConnectionFactory with settings ");
-		TopicConnectionFactory connFact = (TopicConnectionFactory)initConn.lookup(settings.getProperty("connectionFactoryNames"));
+		ActiveMQConnectionFactory connFact = new ActiveMQConnectionFactory(settings.getProperty("java.naming.provider.url"));
+		connFact.setTrustAllPackages(true);
+		connFact.setTrustedPackages(new ArrayList<String>(Arrays.asList(settings.getProperty("activemq.trustable.serializable.class.list").split(","))));
+		//TopicConnectionFactory connFact = (TopicConnectionFactory)initConn.lookup(settings.getProperty("connectionFactoryNames"));
+		
 		if (debug) {
 			DebugMessages.ok();  
 			DebugMessages.print(this.getClass().getSimpleName(),
