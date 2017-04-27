@@ -35,7 +35,7 @@ import javax.jms.TopicSession;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.ActiveMQSslConnectionFactory;
 
 import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEvent;
 import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEventAbstract;
@@ -77,7 +77,7 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 		while (retry) {
 			try {
 				initContext = this.initConnection(settings, true);
-				this.createConnection(initContext,settings.getProperty("probeChannel"), settings, true);	
+				this.createSSLConnection(initContext,settings.getProperty("probeChannel"), settings, true);	
 				retry = false;
 			} catch (NamingException | JMSException e) {
 				DebugMessages.fail();
@@ -110,20 +110,33 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 	 * @throws NamingException
 	 * @throws JMSException
 	 */
-	protected TopicPublisher createConnection(InitialContext initConn, String probeChannel, Properties settings, boolean debug) throws NamingException, JMSException
+	
+	
+	
+    protected TopicPublisher createSSLConnection(InitialContext initConn, String probeChannel, Properties settings, boolean debug) throws NamingException, JMSException
 	{
-		if (debug)
-			DebugMessages.print(this.getClass().getSimpleName(),
-					"Creating ConnectionFactory with settings ");
-		ActiveMQConnectionFactory connFact = new ActiveMQConnectionFactory(settings.getProperty("java.naming.provider.url"));
-		connFact.setTrustAllPackages(true);
-		connFact.setTrustedPackages(new ArrayList<String>(Arrays.asList(settings.getProperty("activemq.trustable.serializable.class.list").split(","))));
-		//TopicConnectionFactory connFact = (TopicConnectionFactory)initConn.lookup(settings.getProperty("connectionFactoryNames"));
-		
 		if (debug) {
+			DebugMessages.print(this.getClass().getSimpleName(),
+					"Creating SSL ConnectionFactory with settings ");
+			try {
+			ActiveMQSslConnectionFactory connFact;
+		
+			
+			System.setProperty("javax.net.ssl.keyStore", settings.getProperty("keyStore")); 
+		    System.setProperty("javax.net.ssl.keyStorePassword", settings.getProperty("keyStorePassword")); 
+		    System.setProperty("javax.net.debug", "handshake"); 
+	
+		    connFact = new ActiveMQSslConnectionFactory(settings.getProperty("java.naming.provider.url"));
+		    
+			connFact.setTrustStore(settings.getProperty("trustStore"));
+		    connFact.setTrustStorePassword(settings.getProperty("trustStorePassword")); 
+			connFact.setTrustAllPackages(true);
+			connFact.setTrustedPackages(new ArrayList<String>(Arrays.asList(settings.getProperty("activemq.trustable.serializable.class.list").split(","))));
+
+		
 			DebugMessages.ok();  
 			DebugMessages.print(this.getClass().getSimpleName(),
-						"Creating TopicConnection "); }
+						"Creating TopicConnection ");
 			connection = connFact.createTopicConnection();
 			if (debug) {
 			DebugMessages.ok();
@@ -142,8 +155,17 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 				DebugMessages.print(this.getClass().getSimpleName(),
 						"Creating Publisher "); }
 			return tPub = publishSession.createPublisher(connectionTopic);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			}
+		return null;
+		
 	}
-
+    
+    
+	
 	/**
 	 * This method setup the connection parameters using the {@link Properties} object {@link #settings}
 	 * 
