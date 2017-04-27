@@ -68,7 +68,7 @@ public class MyGlimpseSmartCampusProbe extends GlimpseAbstractProbe {
 								"it.cnr.isti.labsedc.glimpse,java.lang,javax.security,java.util", 								 
 								"PATH/OF/probe.ks",
 								"/PATH/OF/probe.ts",
-								"n1hehe", "n1hehe"));
+								"password", "password"));
 		
 		//sending events
 		try {
