@@ -142,14 +142,14 @@ public class Manager
 			String javaNamingSecurityPrincipal,
 			String javaNamingSecurityCredential, String connectionFactoryNames,
 			String topicProbeTopic, boolean debug,
-			String probeName, String probeChannel,
+			String probeName,
 			String activemqTrustableSerializableClassList,
 			String probeKeyStore,
 			String probeTrustStore,
 			String keyStorePassword,
 			String trustStorePassword) {
 		if (debug)
-			DebugMessages.print(GlimpseAbstractProbe.class.getSimpleName(),
+			DebugMessages.print(System.currentTimeMillis(),GlimpseAbstractProbe.class.getSimpleName(),
 			"Creating Properties object ");
 		Properties settings = new Properties();
 		settings.setProperty("java.naming.factory.initial",javaNamingFactoryInitial);
@@ -159,7 +159,6 @@ public class Manager
 		settings.setProperty("connectionFactoryNames", connectionFactoryNames);
 		settings.setProperty("topic.probeTopic", topicProbeTopic);
 		settings.setProperty("probeName", probeName);
-		settings.setProperty("probeChannel", probeChannel);
 		settings.setProperty("activemq.trustable.serializable.class.list",activemqTrustableSerializableClassList);
 		settings.setProperty("keyStore", probeKeyStore);
 		settings.setProperty("trustStore", probeTrustStore);

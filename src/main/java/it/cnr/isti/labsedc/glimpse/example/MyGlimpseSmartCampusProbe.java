@@ -22,6 +22,8 @@
 
 package it.cnr.isti.labsedc.glimpse.example;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.net.UnknownHostException;
 import java.util.Properties;
 import java.util.Random;
@@ -31,6 +33,7 @@ import javax.naming.NamingException;
 
 import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEvent;
 import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEventFaceRecognition;
+import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEventMachineInformation;
 import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEventSB;
 import it.cnr.isti.labsedc.glimpse.probe.GlimpseAbstractProbe;
 import it.cnr.isti.labsedc.glimpse.utils.DebugMessages;
@@ -64,17 +67,92 @@ public class MyGlimpseSmartCampusProbe extends GlimpseAbstractProbe {
 		DebugMessages.line();
 		MyGlimpseSmartCampusProbe aGenericProbe = new MyGlimpseSmartCampusProbe(
 				Manager.createProbeSettingsPropertiesObject("org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-								"ssl://localhost:61617","system", "manager","TopicCF", "jms.probeTopic",false,"probeName", "probeTopic",
+								//"ssl://146.48.77.37:61617","system", "manager","TopicCF",
+							  "tcp://localhost:61616","system", "manager","TopicCF",
+								"jms.probeTopic", 
+								false, 
+								"probeName",
 								"it.cnr.isti.labsedc.glimpse,java.lang,javax.security,java.util", 								 
-								"PATH/OF/probe.ks",
-								"/PATH/OF/probe.ts",
-								"password", "password"));
+								"/home/acalabro/workspace/GlimpseSmartCampusProbe/probe.ks",
+								"/home/acalabro/workspace/GlimpseSmartCampusProbe/probe.ts",
+								"n1hehe", "n1hehe"));
 		
 		//sending events
 		try {
 				aGenericProbe.generateAndSendExample_GlimpseBaseEvents_SmartBuildingPayload();
 				aGenericProbe.generateAndSendExample_GlimpseBaseEvents_FaceRecognitionPayload();
+				aGenericProbe.generateAndSendExample_GlimpseBaseEvents_EventMachineInformationPayload();
 		} catch (IndexOutOfBoundsException e) {}		
+	}
+	
+	private void generateAndSendExample_GlimpseBaseEvents_EventMachineInformationPayload() {
+		DebugMessages.ok();
+		DebugMessages.print(System.currentTimeMillis(), 
+				MyGlimpseSmartCampusProbe.class.getSimpleName(),
+				"Creating GlimpseBaseMachineInformation message");
+		GlimpseBaseEventMachineInformation<String> message;
+		DebugMessages.ok();
+		DebugMessages.line();
+		
+		message = new GlimpseBaseEventMachineInformation<String>(
+				System.getProperty("os.name"), 
+				this.getClass().getCanonicalName(), 
+				System.currentTimeMillis(), 
+				"EventMachineInformationEvent",
+				false,
+				"noExtraFields",
+				"Available cpu: " + String.valueOf(Runtime.getRuntime().availableProcessors()),
+				(new Double(getProcessCpuLoad()).longValue()), 
+				Runtime.getRuntime().freeMemory()/1024,
+				Runtime.getRuntime().totalMemory()/1024,
+				0l,
+				0l,
+				0l,
+				0l);
+		
+				
+			try {
+				this.sendEventMessage(message, false);
+				DebugMessages.println(System.currentTimeMillis(), MyGlimpseSmartCampusProbe.class.getSimpleName(),
+					"GlimpseBaseEventMachineInformation message sent");
+				DebugMessages.printlnMachineInformationInJSONformat(message);
+				DebugMessages.line();
+			} catch (JMSException | NamingException e) {
+				e.printStackTrace();
+			}
+	}
+
+	public static double getProcessCpuLoad() {
+		
+		OperatingSystemMXBean sysInfo = ManagementFactory.getOperatingSystemMXBean(); 
+		return sysInfo.getSystemLoadAverage();
+//	    MBeanServer mbs    = ManagementFactory.getPlatformMBeanServer();
+//	    ObjectName name;
+//	    Double value = 0d;
+//		try {
+//			name = ObjectName.getInstance("java.lang:type=OperatingSystem");
+//		    AttributeList list = mbs.getAttributes(name, new String[]{ "ProcessCpuLoad" });
+//		    if (list.isEmpty())     return Double.NaN;
+//
+//		    Attribute att = (Attribute)list.get(0);
+//		    value  = (Double)att.getValue();
+//
+//		    // usually takes a couple of seconds before we get real values
+//		    if (value == -1.0)      return Double.NaN;
+//		    // returns a percentage value with 1 decimal point precision
+//		    
+//		} catch (MalformedObjectNameException | NullPointerException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (InstanceNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (ReflectionException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//		return ((int)(value * 1000) / 10.0);
 	}
 
 	@Override
@@ -84,17 +162,17 @@ public class MyGlimpseSmartCampusProbe extends GlimpseAbstractProbe {
 	private void generateAndSendExample_GlimpseBaseEvents_SmartBuildingPayload() {
 		
 		DebugMessages.ok();
-		DebugMessages.print(MyGlimpseSmartCampusProbe.class.getSimpleName(),"Creating GlimpseBaseEventSB message");
+		DebugMessages.print(System.currentTimeMillis(), MyGlimpseSmartCampusProbe.class.getSimpleName(),"Creating GlimpseBaseEventSB message");
 		GlimpseBaseEventSB<Float> message;
 		DebugMessages.ok();
 		DebugMessages.line();
 		
 		message = new GlimpseBaseEventSB<Float>(64f, "HumiditySensorName",
-						System.currentTimeMillis(),	"Humidity",	false, "C-70", SensorType.HUMIDITY);
+						System.currentTimeMillis(),	"Humidity",	false, "i-30", SensorType.HUMIDITY);
 				
 			try {
 				this.sendEventMessage(message, false);
-				DebugMessages.println(
+				DebugMessages.println(System.currentTimeMillis(),
 					MyGlimpseSmartCampusProbe.class.getSimpleName(),
 					"GlimpseBaseEventSB message sent: {\n"
 							+ "sensorName: " + message.getProbeID() + "\n"
@@ -111,18 +189,18 @@ public class MyGlimpseSmartCampusProbe extends GlimpseAbstractProbe {
 		}
 	
 	private void generateAndSendExample_GlimpseBaseEvents_FaceRecognitionPayload() {
-		DebugMessages.print(MyGlimpseSmartCampusProbe.class.getSimpleName(),"Creating GlimpseBaseEventFaceRecognition message");
+		DebugMessages.print(System.currentTimeMillis(), MyGlimpseSmartCampusProbe.class.getSimpleName(),"Creating GlimpseBaseEventFaceRecognition message");
 		GlimpseBaseEventFaceRecognition<Boolean> message;
 		DebugMessages.ok();
 		DebugMessages.line();
 		
 		message = new GlimpseBaseEventFaceRecognition<Boolean>(
 				false, "CameraName", System.currentTimeMillis(),
-				"StringParameterAvailable", false, "C-70", "thePersonID", "IDScreenshot");
+				"StringParameterAvailable", false, "i-30", "Unknown", "IDScreenshot");
 				
 			try {
 				this.sendEventMessage(message, false);
-				DebugMessages.println(
+				DebugMessages.println(System.currentTimeMillis(),
 					MyGlimpseSmartCampusProbe.class.getSimpleName(),
 					"GlimpseBaseEventFaceRecognition message sent: {\n"
 							+ "cameraName: " + message.getProbeID() + "\n"

@@ -10,6 +10,42 @@
   	<name>LABSEDC - ISTI CNR</name>
   	<url>http://labsedc.isti.cnr.it</url>
   </organization>
+  	<build>
+		<plugins>
+			<plugin><groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <version>3.1</version>
+     <configuration>
+      <source>9</source>
+      <target>9</target>
+    </configuration>
+			</plugin>	
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>it.cnr.isti.labsedc.glimpse.example.MyGlimpseSmartCampusProbe</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	
   <dependencies>
 		<dependency>
 		  	<groupId>org.apache.activemq</groupId>
@@ -24,17 +60,28 @@
 			  <dependency>
 	  	<groupId>it.cnr.isti.labsedc</groupId>
 	  	<artifactId>ComplexEventException</artifactId>
-	  	<version>0.0.1-SNAPSHOT</version>
+	  	<version>0.0.1</version>
 	  </dependency>
 	  <dependency>
 	  	<groupId>it.cnr.isti.labsedc</groupId>
 	  	<artifactId>ComplexEventResponse</artifactId>
-	  	<version>0.0.1-SNAPSHOT</version>
+	  	<version>0.0.1</version>
 	  </dependency>
 	  <dependency>
 	  	<groupId>it.cnr.isti.labsedc</groupId>
 	  	<artifactId>ComplexEventRule</artifactId>
-	  	<version>0.0.1-SNAPSHOT</version>
+	  	<version>0.0.1</version>
 	  </dependency>
+	  			<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20151123</version>
+		</dependency>
+
+	  			<dependency>
+	  				<groupId>org.codehaus.jackson</groupId>
+	  				<artifactId>jackson-mapper-asl</artifactId>
+	  				<version>1.9.13.redhat-3</version>
+	  			</dependency>
   </dependencies>
 </project>

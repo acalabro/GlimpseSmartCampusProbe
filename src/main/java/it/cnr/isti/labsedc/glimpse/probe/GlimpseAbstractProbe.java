@@ -35,6 +35,7 @@ import javax.jms.TopicSession;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSslConnectionFactory;
 
 import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEvent;
@@ -77,12 +78,16 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 		while (retry) {
 			try {
 				initContext = this.initConnection(settings, true);
-				this.createSSLConnection(initContext,settings.getProperty("probeChannel"), settings, true);	
+				if (settings.getProperty("java.naming.provider.url").startsWith("ssl")) {
+					this.createSSLConnection(initContext,settings.getProperty("topic.probeTopic").replaceFirst("jms.", ""), settings, true);	
+				}
+				else 
+					this.createConnection(initContext, settings, true);
 				retry = false;
 			} catch (NamingException | JMSException e) {
 				DebugMessages.fail();
 				DebugMessages.line();
-				DebugMessages.println(this.getClass().getSimpleName(), "CONNECTION FAILED - Retrying in " + seconds + " seconds");
+				DebugMessages.println(System.currentTimeMillis(), this.getClass().getSimpleName(), "CONNECTION FAILED - Retrying in " + seconds + " seconds");
 				if (seconds <300) {
 					retry = true;
 					DebugMessages.line();
@@ -91,7 +96,7 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 				} catch (InterruptedException e1) {
 				}
 				seconds +=5;
-				DebugMessages.println(this.getClass().getSimpleName(), "Retrying .......... ");
+				DebugMessages.println(System.currentTimeMillis(), this.getClass().getSimpleName(), "Retrying .......... ");
 				}
 				
 			}
@@ -113,56 +118,96 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 	
 	
 	
-    protected TopicPublisher createSSLConnection(InitialContext initConn, String probeChannel, Properties settings, boolean debug) throws NamingException, JMSException
-	{
-		if (debug) {
-			DebugMessages.print(this.getClass().getSimpleName(),
-					"Creating SSL ConnectionFactory with settings ");
-			try {
-			ActiveMQSslConnectionFactory connFact;
-		
+	 protected TopicPublisher createSSLConnection(InitialContext initConn, String probeTopic, Properties settings, boolean debug) throws NamingException, JMSException
+		{
+			if (debug) {
+				DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
+						"Creating SSL ConnectionFactory with settings ");
+				try {
+				ActiveMQSslConnectionFactory connFact;
 			
-			System.setProperty("javax.net.ssl.keyStore", settings.getProperty("keyStore")); 
-		    System.setProperty("javax.net.ssl.keyStorePassword", settings.getProperty("keyStorePassword")); 
-		    System.setProperty("javax.net.debug", "handshake"); 
-	
-		    connFact = new ActiveMQSslConnectionFactory(settings.getProperty("java.naming.provider.url"));
-		    
-			connFact.setTrustStore(settings.getProperty("trustStore"));
-		    connFact.setTrustStorePassword(settings.getProperty("trustStorePassword")); 
-			connFact.setTrustAllPackages(true);
-			connFact.setTrustedPackages(new ArrayList<String>(Arrays.asList(settings.getProperty("activemq.trustable.serializable.class.list").split(","))));
+				
+				System.setProperty("javax.net.ssl.keyStore", settings.getProperty("keyStore")); 
+			    System.setProperty("javax.net.ssl.keyStorePassword", settings.getProperty("keyStorePassword")); 
+			    System.setProperty("javax.net.debug", "handshake"); 
+		
+			    connFact = new ActiveMQSslConnectionFactory(settings.getProperty("java.naming.provider.url"));
+			    
+				connFact.setTrustStore(settings.getProperty("trustStore"));
+			    connFact.setTrustStorePassword(settings.getProperty("trustStorePassword")); 
+				connFact.setTrustAllPackages(true);
+				connFact.setTrustedPackages(new ArrayList<String>(Arrays.asList(settings.getProperty("activemq.trustable.serializable.class.list").split(","))));
 
-		
-			DebugMessages.ok();  
-			DebugMessages.print(this.getClass().getSimpleName(),
-						"Creating TopicConnection ");
-			connection = connFact.createTopicConnection();
-			if (debug) {
-			DebugMessages.ok();
-			DebugMessages.line(); }
-			if (debug) {
-				DebugMessages.print(this.getClass().getSimpleName(),
-						"Creating Session "); }
-			publishSession = connection.createTopicSession(false,Session.AUTO_ACKNOWLEDGE);
-			if (debug) {
+			
+				DebugMessages.ok();  
+				DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
+							"Creating TopicConnection ");
+				connection = connFact.createTopicConnection();
+				if (debug) {
 				DebugMessages.ok();
-				DebugMessages.print(this.getClass().getSimpleName(),
-						"Looking up for channel ");}
-			connectionTopic = (Topic) initContext.lookup(probeChannel);
-			if (debug) {
-				DebugMessages.ok();
-				DebugMessages.print(this.getClass().getSimpleName(),
-						"Creating Publisher "); }
-			return tPub = publishSession.createPublisher(connectionTopic);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+				DebugMessages.line(); }
+				if (debug) {
+					DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
+							"Creating Session "); }
+				publishSession = connection.createTopicSession(false,Session.AUTO_ACKNOWLEDGE);
+				if (debug) {
+					DebugMessages.ok();
+					DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
+							"Looking up for channel ");}
+				connectionTopic = (Topic) initContext.lookup(settings.getProperty("topic.probeTopic").replaceFirst("jms.", ""));
+				if (debug) {
+					DebugMessages.ok();
+					DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
+							"Creating Publisher "); }
+				return tPub = publishSession.createPublisher(connectionTopic);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		return null;
-		
-	}
+				}
+			return null;
+			
+		}
+	 
+	 protected TopicPublisher createConnection(InitialContext initConn, Properties settings, boolean debug) throws NamingException, JMSException
+		{
+			if (debug) {
+				DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
+						"Creating ConnectionFactory with settings ");
+				try {
+				ActiveMQConnectionFactory connFact;
+				
+			    connFact = new ActiveMQConnectionFactory(settings.getProperty("java.naming.provider.url"));
+	
+				DebugMessages.ok();  
+				DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
+							"Creating TopicConnection ");
+				connection = connFact.createTopicConnection();
+				if (debug) {
+				DebugMessages.ok();
+				DebugMessages.line(); }
+				if (debug) {
+					DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
+							"Creating Session "); }
+				publishSession = connection.createTopicSession(false,Session.AUTO_ACKNOWLEDGE);
+				if (debug) {
+					DebugMessages.ok();
+					DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
+							"Looking up for channel ");}
+				connectionTopic = (Topic) initContext.lookup(settings.getProperty("topic.probeTopic").replaceFirst("jms.", ""));
+				if (debug) {
+					DebugMessages.ok();
+					DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
+							"Creating Publisher "); }
+				return tPub = publishSession.createPublisher(connectionTopic);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+				}
+			return null;
+			
+		}
     
     
 	
@@ -174,17 +219,18 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 	 * @return it provides an {@link InitialContext} object that will be used<br />during the Consumer <-> Monitoring interaction.
 	 * @throws NamingException
 	 */
-	protected InitialContext initConnection(Properties settings, boolean debug) throws NamingException {
-		if (debug)
-		DebugMessages.print(this.getClass().getSimpleName(),
-				"Creating InitialContext with settings ");
-		InitialContext initConn = new InitialContext(settings);
-		if (debug) {
-			DebugMessages.ok(); 
-			DebugMessages.line(); }
-		return initConn;
-	}	
-	
+		protected InitialContext initConnection(Properties settings, boolean debug) throws NamingException {
+			if (debug)
+			DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
+					"Creating InitialContext with settings ");
+			InitialContext initConn = new InitialContext(settings);
+			if (debug) {
+				DebugMessages.ok(); 
+				DebugMessages.line(); }
+			return initConn;
+		}	
+		
+		
 	public abstract void sendMessage(GlimpseBaseEvent<?> event, boolean debug);
 	
 	/**
@@ -199,7 +245,7 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 	protected void sendEventMessage(GlimpseBaseEventAbstract<?> event, boolean debug) throws JMSException,
 			NamingException {
 		if (debug) {
-			DebugMessages.print(this.getClass().getSimpleName(),
+			DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
 					"Creating Message "); }
 		try 
 		{
@@ -208,7 +254,7 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 			messageToSend.setObject(event);		
 		if (debug) {
 			DebugMessages.ok();
-			DebugMessages.print(this.getClass().getSimpleName(),
+			DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
 					"Publishing message  "); }
 		tPub.publish(messageToSend);	
 		if (debug) {
