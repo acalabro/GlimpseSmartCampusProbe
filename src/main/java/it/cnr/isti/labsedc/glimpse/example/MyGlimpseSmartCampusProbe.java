@@ -68,7 +68,7 @@ public class MyGlimpseSmartCampusProbe extends GlimpseAbstractProbe {
 		MyGlimpseSmartCampusProbe aGenericProbe = new MyGlimpseSmartCampusProbe(
 				Manager.createProbeSettingsPropertiesObject("org.apache.activemq.jndi.ActiveMQInitialContextFactory",
 								//"ssl://146.48.77.37:61617","system", "manager","TopicCF",
-							  "tcp://localhost:61616","system", "manager","TopicCF",
+							  "tcp://glimpse-dev.isti.cnr.it:61616","system", "manager","TopicCF",
 								"jms.probeTopic", 
 								false, 
 								"probeName",

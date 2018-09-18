@@ -23,11 +23,11 @@ package it.cnr.isti.labsedc.glimpse.utils;
 import java.io.IOException;
 import java.util.Calendar;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
-import org.codehaus.jackson.annotate.JsonMethod;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEventMachineInformation;
 
@@ -126,7 +126,7 @@ public class DebugMessages {
 	public static void printlnMachineInformationInJSONformat(GlimpseBaseEventMachineInformation<String> theObjectToPrint) {
 		//jsonTest
 		ObjectMapper TEMPjsonObjectToPrint = new ObjectMapper();
-		TEMPjsonObjectToPrint.setVisibility(JsonMethod.FIELD, Visibility.ANY);
+		TEMPjsonObjectToPrint.setVisibility(PropertyAccessor.ALL, Visibility.ANY);
 		try {
 			DebugMessages.println(System.currentTimeMillis(),  DebugMessages.class.getCanonicalName(), 
 					TEMPjsonObjectToPrint.writeValueAsString(theObjectToPrint));
