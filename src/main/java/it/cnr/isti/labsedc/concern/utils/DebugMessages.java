@@ -1,35 +1,6 @@
- /*
-  * GLIMPSE: A generic and flexible monitoring infrastructure.
-  * For further information: http://labsewiki.isti.cnr.it/labse/tools/glimpse/public/main
-  * 
-  * Copyright (C) 2011  Software Engineering Laboratory - ISTI CNR - Pisa - Italy
-  * 
-  * This program is free software: you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation, either version 3 of the License, or
-  * (at your option) any later version.
-  * 
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-  * 
-  * You should have received a copy of the GNU General Public License
-  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-  * 
-*/
-package it.cnr.isti.labsedc.glimpse.utils;
+package it.cnr.isti.labsedc.concern.utils;
 
-import java.io.IOException;
 import java.util.Calendar;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEventMachineInformation;
 
 /**
  * This class provides print function for debug
@@ -123,24 +94,5 @@ public class DebugMessages {
 		System.err.println("------------------------------------------------------------------------------------------------------------------------------");
 		System.err.println("******************************************************************************************************************************");
 	}
-	public static void printlnMachineInformationInJSONformat(GlimpseBaseEventMachineInformation<String> theObjectToPrint) {
-		//jsonTest
-		ObjectMapper TEMPjsonObjectToPrint = new ObjectMapper();
-		TEMPjsonObjectToPrint.setVisibility(PropertyAccessor.ALL, Visibility.ANY);
-		try {
-			DebugMessages.println(System.currentTimeMillis(),  DebugMessages.class.getCanonicalName(), 
-					TEMPjsonObjectToPrint.writeValueAsString(theObjectToPrint));
-		} catch (JsonGenerationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		//end-JsonTest		
-	}
+
 }

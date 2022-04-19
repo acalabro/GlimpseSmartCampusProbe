@@ -19,24 +19,22 @@
   * 
 */
 
-package it.cnr.isti.labsedc.glimpse.exceptions;
+package it.cnr.isti.labsedc.concern.exceptions;
 
 /**
  * This exception will be thrown when the Monitoring Manager<br />
- * is unable to complete the request of unloading a rule.
+ * is unable to find the ID of the Consumer that send a evaluation request.
  * 
  * @author Antonello Calabr&ograve;
  * @version 3.2
  */
 
-public class UnknownRuleException extends Exception {
+public class UnknownConsumerIDException extends Exception {
 
-	private static final long serialVersionUID = -8325934056030280854L;
+	private static final long serialVersionUID = 1L;
 
-	public UnknownRuleException()
+	public UnknownConsumerIDException()
 	{
-		System.out.println("Unable to found a rule with provided ruleName");
+		System.out.println("Check request ID, may contains errors");
 	}
-	
-	
 }

@@ -1,79 +1,38 @@
- /*
-  * GLIMPSE: A generic and flexible monitoring infrastructure.
-  * For further information: http://labsewiki.isti.cnr.it/labse/tools/glimpse/public/main
-  *
-  * Copyright (C) 2011  Software Engineering Laboratory - ISTI CNR - Pisa - Italy
-  *
-  * This program is free software: you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation, either version 3 of the License, or
-  * (at your option) any later version.
-  *
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-  *
-  * You should have received a copy of the GNU General Public License
-  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-  *
-*/
-
-package it.cnr.isti.labsedc.glimpse.probe;
+package it.cnr.isti.labsedc.concern.probe;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
 
 import javax.jms.JMSException;
+import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicPublisher;
-import javax.jms.TopicSession;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQSslConnectionFactory;
 
-import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEvent;
-import it.cnr.isti.labsedc.glimpse.event.GlimpseBaseEventAbstract;
-import it.cnr.isti.labsedc.glimpse.probe.GlimpseProbe;
-import it.cnr.isti.labsedc.glimpse.utils.DebugMessages;
-import it.cnr.isti.labsedc.glimpse.utils.Manager;
+import it.cnr.isti.labsedc.concern.event.ConcernBaseEvent;
+import it.cnr.isti.labsedc.concern.utils.DebugMessages;
 
-
-/**
- * This class represent a generic implementation of the interface {@link GlimpseProbe}.<br />
- * It provides the abstract method: {@link #sendMessage(GlimpseBaseEvent, boolean)}<br />
- * that can be extended if needed.<br />
- *
- * @author Antonello Calabr&ograve;
- * @version 3.2
- *
- */
-public abstract class GlimpseAbstractProbe implements GlimpseProbe {
+public abstract class ConcernAbstractProbe implements ConcernProbe {
 
 	protected static InitialContext initContext;
-	protected static TopicSession publishSession;
-	protected static TopicPublisher tPub;
+	protected static Session publishSession;
+	protected static MessageProducer mProducer;
 	protected static TopicConnection connection;
 	protected static Topic connectionTopic;
 	protected static int MESSAGEID = 0;
 	protected boolean retry = true;
 	protected int seconds = 5;
 
-	/**
-	 * This constructor allow to create a GlimpseAbstractProbe object<br />
-	 * providing the {@link Properties} settings object
-	 * @param settings can be generated automatically
-	 * using {@link Manager#createConsumerSettingsPropertiesObject(String, String, String, String, String, String, boolean, String)}.
-	 * @throws InterruptedException
-	 *
-	 */
-	public GlimpseAbstractProbe(Properties settings) {
+
+	public ConcernAbstractProbe(Properties settings) {
 
 		while (retry) {
 			try {
@@ -107,7 +66,7 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 	 * This method setup a {@link TopicConnection} object.
 	 *
 	 * @param initConn the InitialContext object generated using the method {@link #initConnection(Properties, boolean)}.
-	 * @param settings can be generated automatically using {@link Manager#createProbeSettingsPropertiesObject(String, String, String, String, String, String, boolean, String, String)}
+	 * @param settings can be generated automatically using {@link ConnectionManager#createProbeSettingsPropertiesObject(String, String, String, String, String, String, boolean, String, String)}
 	 * @param probeChannel
 	 * @param settings
 	 * @param debug
@@ -118,7 +77,7 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 
 
 
-	 protected TopicPublisher createSSLConnection(InitialContext initConn, String probeTopic, Properties settings, boolean debug) throws NamingException, JMSException
+	 protected MessageProducer createSSLConnection(InitialContext initConn, String probeTopic, Properties settings, boolean debug) throws NamingException, JMSException
 		{
 			if (debug) {
 				DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
@@ -154,12 +113,12 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 					DebugMessages.ok();
 					DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
 							"Looking up for channel ");}
-				connectionTopic = (Topic) initContext.lookup(settings.getProperty("topic.probeTopic").replaceFirst("jms.", ""));
+				connectionTopic = publishSession.createTopic(settings.getProperty("topic.probeTopic").replaceFirst("jms.", ""));
 				if (debug) {
 					DebugMessages.ok();
 					DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
 							"Creating Publisher "); }
-				return tPub = publishSession.createPublisher(connectionTopic);
+				return mProducer = publishSession.createProducer(connectionTopic);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -169,7 +128,7 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 
 		}
 
-	 protected TopicPublisher createConnection(InitialContext initConn, Properties settings, boolean debug) throws NamingException, JMSException
+	 protected MessageProducer createConnection(InitialContext initConn, Properties settings, boolean debug) throws NamingException, JMSException
 		{
 			if (debug) {
 				DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
@@ -177,7 +136,10 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 				try {
 				ActiveMQConnectionFactory connFact;
 
-			    connFact = new ActiveMQConnectionFactory(settings.getProperty("java.naming.provider.url"));
+			    connFact = new ActiveMQConnectionFactory( 
+			    		settings.getProperty("amqLogin"),
+			    		settings.getProperty("amqPassword"),
+			    		settings.getProperty("java.naming.provider.url"));
 
 				DebugMessages.ok();
 				DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
@@ -194,12 +156,17 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 					DebugMessages.ok();
 					DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
 							"Looking up for channel ");}
-				connectionTopic = (Topic) initContext.lookup(settings.getProperty("topic.probeTopic").replaceFirst("jms.", ""));
+				connectionTopic = publishSession.createTopic(settings.getProperty("topic.probeTopic").replaceFirst("jms.", ""));
 				if (debug) {
 					DebugMessages.ok();
 					DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
 							"Creating Publisher "); }
-				return tPub = publishSession.createPublisher(connectionTopic);
+
+				mProducer = publishSession.createProducer(connectionTopic);
+				
+				DebugMessages.ok();
+
+				return mProducer; 
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -231,10 +198,10 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 		}
 
 
-	public abstract void sendMessage(GlimpseBaseEvent<?> event, boolean debug);
+	public abstract void sendMessage(ConcernBaseEvent<?> event, boolean debug);
 
 	/**
-	 * This method send a {@link GlimpseBaseEvent} message on the ESB<br />
+	 * This method send a {@link ConcernBaseEvent} message on the ESB<br />
 	 * specifically on the channel specified in the {@link #settings} object.
 	 *
 	 * @param event the event to send
@@ -242,7 +209,7 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 	 * @throws JMSException
 	 * @throws NamingException
 	 */
-	protected void sendEventMessage(GlimpseBaseEventAbstract<?> event, boolean debug) throws JMSException,
+	protected void sendEventMessage(ConcernBaseEvent<?> event, boolean debug) throws JMSException,
 			NamingException {
 		if (debug) {
 			DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
@@ -256,12 +223,12 @@ public abstract class GlimpseAbstractProbe implements GlimpseProbe {
 			DebugMessages.ok();
 			DebugMessages.print(System.currentTimeMillis(), this.getClass().getSimpleName(),
 					"Publishing message  "); }
-		tPub.publish(messageToSend);
+		mProducer.send(messageToSend);
 		if (debug) {
 			DebugMessages.ok();
 			DebugMessages.line(); }
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
-	}
+	}	
 }

@@ -1,4 +1,4 @@
-package it.cnr.isti.labsedc.glimpse.utils;
+package it.cnr.isti.labsedc.concern.utils;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -7,7 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import it.cnr.isti.labsedc.glimpse.probe.GlimpseAbstractProbe;
+import it.cnr.isti.labsedc.concern.probe.ConcernAbstractProbe;
 
 /**
  * This class should be used only for debug purpose<br />
@@ -107,24 +107,10 @@ public class Manager
 		}
 		return strB.toString();
 	}
-	
-	/**
-	 * This method generate a {@link Properties} object file.
-	 * 
-	 * @param javaNamingFactoryInitial 
-	 * @param javaNamingProviderUrl
-	 * @param javaNamingSecurityPrincipal
-	 * @param javaNamingSecurityCredential
-	 * @param connectionFactoryNames 
-	 * @param topicServiceTopic the channel where to connect to send the monitoring request
-	 * @param debug
-	 * @param consumerName the name of the consumer that is sending the request
-	 * @return a {@link Properties} object
-	 */
-	
+
 	/**
 	 * This method generate a {@link Properties} object file that can be used to<br />
-	 * setup a {@link GlimpseAbstractProbe}.
+	 * setup a {@link ConcernAbstractProbe}.
 	 * 
 	 * @param javaNamingFactoryInitial 
 	 * @param javaNamingProviderUrl
@@ -132,9 +118,12 @@ public class Manager
 	 * @param javaNamingSecurityCredential
 	 * @param connectionFactoryNames 
 	 * @param topicProbeTopic the channel where to connect to send the events
-	 * @param debug
 	 * @param probeName the name of the probe that is sending the events
-	 * @param probeChannel the channel where to send events
+	 * @param probetopi the channel where to send events
+	 * @param activemqTrustableSerializableClassList the subset of classes that can be considered trustable
+	 * @param keyStorePassword the loginName for accessing to the amq instance
+	 * @param amqLogin the login to access to the amq instance
+	 * @param amqPassword the password for access to the amq instance
 	 * @return a {@link Properties} object
 	 */
 	public static Properties createProbeSettingsPropertiesObject(
@@ -144,12 +133,10 @@ public class Manager
 			String topicProbeTopic, boolean debug,
 			String probeName,
 			String activemqTrustableSerializableClassList,
-			String probeKeyStore,
-			String probeTrustStore,
-			String keyStorePassword,
-			String trustStorePassword) {
+			String amqLogin,
+			String amqPassword) {
 		if (debug)
-			DebugMessages.print(System.currentTimeMillis(),GlimpseAbstractProbe.class.getSimpleName(),
+			DebugMessages.print(System.currentTimeMillis(),ConcernAbstractProbe.class.getSimpleName(),
 			"Creating Properties object ");
 		Properties settings = new Properties();
 		settings.setProperty("java.naming.factory.initial",javaNamingFactoryInitial);
@@ -160,10 +147,8 @@ public class Manager
 		settings.setProperty("topic.probeTopic", topicProbeTopic);
 		settings.setProperty("probeName", probeName);
 		settings.setProperty("activemq.trustable.serializable.class.list",activemqTrustableSerializableClassList);
-		settings.setProperty("keyStore", probeKeyStore);
-		settings.setProperty("trustStore", probeTrustStore);
-		settings.setProperty("keyStorePassword", keyStorePassword);
-		settings.setProperty("trustStorePassword", trustStorePassword);
+		settings.setProperty("amqLogin", amqLogin);
+		settings.setProperty("amqPassword", amqPassword);
 						
 		if (debug) {
 			DebugMessages.ok(); 

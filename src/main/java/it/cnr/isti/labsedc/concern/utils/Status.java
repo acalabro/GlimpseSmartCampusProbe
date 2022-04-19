@@ -1,4 +1,4 @@
-package it.cnr.isti.labsedc.glimpse.utils;
+package it.cnr.isti.labsedc.concern.utils;
 
 /**
  * This class is used to get the Monitoring Engine status.

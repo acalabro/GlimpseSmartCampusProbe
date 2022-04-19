@@ -19,22 +19,24 @@
   * 
 */
 
-package it.cnr.isti.labsedc.glimpse.exceptions;
+package it.cnr.isti.labsedc.concern.exceptions;
 
 /**
  * This exception will be thrown when the Monitoring Manager<br />
- * will receive an invalid rule.<br />
- * The rule is contained into the field RuleBody of the ComplexEventRuleDocument object
+ * is unable to complete the request of unloading a rule.
  * 
  * @author Antonello Calabr&ograve;
  * @version 3.2
  */
 
-public class IncorrectRuleFormatException extends Exception {
-	private static final long serialVersionUID = -2577929182751048650L;
+public class UnknownRuleException extends Exception {
 
-	public IncorrectRuleFormatException()
+	private static final long serialVersionUID = -8325934056030280854L;
+
+	public UnknownRuleException()
 	{
-		System.out.println("Check rule format, may contains errors");
+		System.out.println("Unable to found a rule with provided ruleName");
 	}
+	
+	
 }

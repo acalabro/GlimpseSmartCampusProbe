@@ -1,4 +1,4 @@
-package it.cnr.isti.labsedc.glimpse.exceptions;
+package it.cnr.isti.labsedc.concern.exceptions;
 
 public class UnknownEnablerIDException extends Exception {
 
